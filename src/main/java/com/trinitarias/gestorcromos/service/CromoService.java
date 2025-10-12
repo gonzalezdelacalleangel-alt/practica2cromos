@@ -49,4 +49,8 @@ public class CromoService {
 		repo.deleteById(id);
 		return true;
 	}
+	
+	public List<Cromo> getBySerie(String serie){
+		return repo.findAllBySerieIgnoreCase(serie);
+	}
 }

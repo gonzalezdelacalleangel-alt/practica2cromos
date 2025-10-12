@@ -88,6 +88,17 @@ public class CromoController {
 		return ResponseEntity.noContent().build();
 	}
 	
+	@GetMapping("/search")
+	public ResponseEntity<?> getAllBySerie (@RequestParam String serie){
+		List<Cromo> cromos =  cromoService.getBySerie(serie);
+		if(cromos.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con esa serie.");
+		}
+		return ResponseEntity.ok(cromos);
+	}
+	
+	
+	
 	public ResponseEntity<?> dataValidation(Cromo cromo){
 
 		if(cromo.getNombre() == null  || cromo.getNombre().isBlank()) { //name cant be null or empty
