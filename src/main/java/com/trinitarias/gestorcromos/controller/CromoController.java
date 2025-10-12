@@ -14,12 +14,61 @@ import org.springframework.web.bind.annotation.*;  // provides annotations for h
  * import org.springframework.web.bind.annotation.RequestBody;      // maps JSON request body to a Java object
  */
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import com.trinitarias.gestorcromos.Cromo;
+import com.trinitarias.gestorcromos.service.CromoService;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController  //this class will handle HTTP requests 
 @RequestMapping("api/v1/cromos") //sets the base URL for this controller — all routes will start with "/api/v1/cromos" 
 
 public class CromoController {
 
+	@Autowired
+    private CromoService cromoService; // instance that Spring will inject 
+	
+	@PostMapping
+	public ResponseEntity<?> createCromo(@RequestBody Cromo cromo){
+		
+		if(cromo.getNombre() == null  || cromo.getNombre().isBlank()) { //name cant be null or empty
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacio.");
+		}
+		
+		if(cromo.getNumero()<0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El número no puede ser negativo.");
+		}
+		
+		if(cromo.getSerie() == null || cromo.getSerie().isBlank()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La serie no puede estar vacía.");
+		}
+		
+		
+		int currentYear = java.time.Year.now().getValue();
+		if(cromo.getAnio() < 1990 || cromo.getAnio() > currentYear ) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El año debe estar en el 1990 y el año actual.");
+			
+		}
+		
+		Cromo savedCromo = cromoService.saveCromo(cromo);
+		return ResponseEntity.status(HttpStatus.CREATED).body(savedCromo);
+		
+		
+	}
+	
+	@GetMapping
+	public ResponseEntity<List<Cromo>> getAllCromos(){
+		
+			List<Cromo> allCromos = cromoService.getAllCromos();
+			if(allCromos.isEmpty()) {
+				return ResponseEntity.noContent().build();
+	}
+			return ResponseEntity.ok(allCromos);
+		
+	}
 	
 
 }

@@ -21,6 +21,43 @@ public class Cromo {
 		private int numero, anio;
 		private boolean repetido;
 		
+		public String getNombre() {
+			return nombre;
+		}
+		public void setNombre(String nombre) {
+			this.nombre = nombre;
+		}
+		public String getSerie() {
+			return serie;
+		}
+		public void setSerie(String serie) {
+			this.serie = serie;
+		}
+		public String getRareza() {
+			return rareza;
+		}
+		public void setRareza(String rareza) {
+			this.rareza = rareza;
+		}
+		public int getNumero() {
+			return numero;
+		}
+		public void setNumero(int numero) {
+			this.numero = numero;
+		}
+		public int getAnio() {
+			return anio;
+		}
+		public void setAnio(int anio) {
+			this.anio = anio;
+		}
+		public boolean isRepetido() {
+			return repetido;
+		}
+		public void setRepetido(boolean repetido) {
+			this.repetido = repetido;
+		}
+		
 		
 	
 
