@@ -20,6 +20,7 @@ import com.trinitarias.gestorcromos.Cromo;
 import com.trinitarias.gestorcromos.service.CromoService;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -68,6 +69,15 @@ public class CromoController {
 	}
 			return ResponseEntity.ok(allCromos);
 		
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getById(@PathVariable Long id){
+		Optional<Cromo> savedCromo = cromoService.getById(id);
+		if(savedCromo == null ) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+		}
+		return ResponseEntity.ok(savedCromo);
 	}
 	
 

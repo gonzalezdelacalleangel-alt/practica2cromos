@@ -21,6 +21,8 @@ public class Cromo {
 		private int numero, anio;
 		private boolean repetido;
 		
+		public Cromo() {}
+		
 		public String getNombre() {
 			return nombre;
 		}
