@@ -30,4 +30,14 @@ public class CromoService {
 	public Optional<Cromo> getById(Long id) {
 		return repo.findById(id);
 	}
+	
+	public Optional<Cromo> update(Long id, Cromo newCromo){
+		Optional<Cromo> oldCromo  = repo.findById(id);
+		if(oldCromo== null) {
+			return Optional.empty();
+		}
+		newCromo.setId(oldCromo.get().getId());
+		repo.save(newCromo);
+		return Optional.of(newCromo);
+	}
 }

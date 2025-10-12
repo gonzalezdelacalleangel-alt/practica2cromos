@@ -35,23 +35,9 @@ public class CromoController {
 	@PostMapping
 	public ResponseEntity<?> createCromo(@RequestBody Cromo cromo){
 		
-		if(cromo.getNombre() == null  || cromo.getNombre().isBlank()) { //name cant be null or empty
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacio.");
-		}
-		
-		if(cromo.getNumero()<0) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El número no puede ser negativo.");
-		}
-		
-		if(cromo.getSerie() == null || cromo.getSerie().isBlank()) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La serie no puede estar vacía.");
-		}
-		
-		
-		int currentYear = java.time.Year.now().getValue();
-		if(cromo.getAnio() < 1990 || cromo.getAnio() > currentYear ) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El año debe estar en el 1990 y el año actual.");
-			
+		ResponseEntity<?> validationError = dataValidation(cromo);
+		if(validationError != null ) {
+			return validationError;
 		}
 		
 		Cromo savedCromo = cromoService.saveCromo(cromo);
@@ -80,5 +66,44 @@ public class CromoController {
 		return ResponseEntity.ok(savedCromo);
 	}
 	
+	@PutMapping("/{id}")
+	public ResponseEntity<?> update (@PathVariable Long id, @RequestBody Cromo newCromo){
+		ResponseEntity<?> validationError = dataValidation(newCromo);
+		if (validationError != null) {
+			return validationError;
+		}
+		Optional<Cromo> savedCromo = cromoService.update(id, newCromo);
+		if(savedCromo.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+		}
+		return ResponseEntity.ok(savedCromo);
+	}
+	
+	
+	
+	public ResponseEntity<?> dataValidation(Cromo cromo){
+
+		if(cromo.getNombre() == null  || cromo.getNombre().isBlank()) { //name cant be null or empty
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacio.");
+		}
+		
+		if(cromo.getNumero()<=0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El número debe ser mayor que 0.");
+		}
+		
+		if(cromo.getSerie() == null || cromo.getSerie().isBlank()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La serie no puede estar vacía.");
+		}
+		
+		
+		int currentYear = java.time.Year.now().getValue();
+		if(cromo.getAnio() < 1990 || cromo.getAnio() > currentYear ) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El año debe estar en el 1990 y el año actual.");
+			
+		}
+		return null;
+	}
 
 }
+
+
