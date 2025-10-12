@@ -33,11 +33,20 @@ public class CromoService {
 	
 	public Optional<Cromo> update(Long id, Cromo newCromo){
 		Optional<Cromo> oldCromo  = repo.findById(id);
-		if(oldCromo== null) {
+		if(oldCromo.isEmpty()) {
 			return Optional.empty();
 		}
 		newCromo.setId(oldCromo.get().getId());
 		repo.save(newCromo);
 		return Optional.of(newCromo);
+	}
+	
+	public boolean deleteById (Long id){
+		Optional<Cromo> cromo = repo.findById(id);
+		if(cromo.isEmpty()) {
+			return false;
+		}
+		repo.deleteById(id);
+		return true;
 	}
 }

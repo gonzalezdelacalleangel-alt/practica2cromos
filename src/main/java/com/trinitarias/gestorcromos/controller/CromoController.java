@@ -79,7 +79,14 @@ public class CromoController {
 		return ResponseEntity.ok(savedCromo);
 	}
 	
-	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deleteById (@PathVariable Long id){
+		boolean isDeleted = cromoService.deleteById(id);
+		if(!isDeleted) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+		}
+		return ResponseEntity.noContent().build();
+	}
 	
 	public ResponseEntity<?> dataValidation(Cromo cromo){
 
