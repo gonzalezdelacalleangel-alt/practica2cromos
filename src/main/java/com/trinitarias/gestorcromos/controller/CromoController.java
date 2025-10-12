@@ -60,7 +60,7 @@ public class CromoController {
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id){
 		Optional<Cromo> savedCromo = cromoService.getById(id);
-		if(savedCromo == null ) {
+		if(savedCromo.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
 		}
 		return ResponseEntity.ok(savedCromo);
