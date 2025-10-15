@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.*;  // provides annotations for h
  * import org.springframework.web.bind.annotation.RequestParam;     // extracts query parameters from URLs
  * import org.springframework.web.bind.annotation.RequestBody;      // maps JSON request body to a Java object
  */
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.trinitarias.gestorcromos.Cromo;
+import com.trinitarias.gestorcromos.dto.CromoDto;
 import com.trinitarias.gestorcromos.service.CromoService;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,73 +34,100 @@ public class CromoController {
     private CromoService cromoService; // instance that Spring will inject 
 	
 	@PostMapping
-	public ResponseEntity<?> createCromo(@RequestBody Cromo cromo){
+	public ResponseEntity<?> createCromo(@RequestBody CromoDto cromo){
+		try {
 		
-		ResponseEntity<?> validationError = dataValidation(cromo);
-		if(validationError != null ) {
-			return validationError;
+			ResponseEntity<?> validationError = dataValidation(cromo);
+			if(validationError != null ) {
+				return validationError;
+			}
+			
+			CromoDto savedCromo = cromoService.saveCromo(cromo);
+			 URI location = ServletUriComponentsBuilder
+		                .fromCurrentRequest()       // /api/cromos
+		                .path("/{id}")              // añade /{id}
+		                .buildAndExpand(savedCromo.getId()) // reemplaza {id} con el ID real
+		                .toUri();
+		    return ResponseEntity.created(location).body(savedCromo);
+		}catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del sistema");
 		}
-		
-		Cromo savedCromo = cromoService.saveCromo(cromo);
-		return ResponseEntity.status(HttpStatus.CREATED).body(savedCromo);
-		
 		
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<Cromo>> getAllCromos(){
+	public ResponseEntity<List<CromoDto>> getAllCromos(){
+		try {
 		
-			List<Cromo> allCromos = cromoService.getAllCromos();
-			if(allCromos.isEmpty()) {
-				return ResponseEntity.noContent().build();
-	}
-			return ResponseEntity.ok(allCromos);
-		
+				List<CromoDto> allCromos = cromoService.getAllCromos();
+				if(allCromos.isEmpty()) {
+					return ResponseEntity.noContent().build();
+		}
+				return ResponseEntity.ok(allCromos);
+		}catch (Exception e) {
+			return ResponseEntity.internalServerError().build();
+		}
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id){
-		Optional<Cromo> savedCromo = cromoService.getById(id);
-		if(savedCromo.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+		try {
+			Optional<CromoDto> savedCromo = cromoService.getById(id);
+			if(savedCromo.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+			}
+			return ResponseEntity.ok(savedCromo);
+		}catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del sistema");
 		}
-		return ResponseEntity.ok(savedCromo);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<?> update (@PathVariable Long id, @RequestBody Cromo newCromo){
-		ResponseEntity<?> validationError = dataValidation(newCromo);
-		if (validationError != null) {
-			return validationError;
+	public ResponseEntity<?> update (@PathVariable Long id, @RequestBody CromoDto newCromo){
+		try {
+			ResponseEntity<?> validationError = dataValidation(newCromo);
+			if (validationError != null) {
+				return validationError;
+			}
+			Optional<CromoDto> savedCromo = cromoService.update(id, newCromo);
+			if(savedCromo.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+			}
+			return ResponseEntity.ok(savedCromo);
+		}catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del sistema");
 		}
-		Optional<Cromo> savedCromo = cromoService.update(id, newCromo);
-		if(savedCromo.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
-		}
-		return ResponseEntity.ok(savedCromo);
 	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteById (@PathVariable Long id){
-		boolean isDeleted = cromoService.deleteById(id);
-		if(!isDeleted) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+		try {
+			boolean isDeleted = cromoService.deleteById(id);
+			if(!isDeleted) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con ese ID");
+			}
+			return ResponseEntity.noContent().build();
+		}catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del sistema");
 		}
-		return ResponseEntity.noContent().build();
 	}
 	
 	@GetMapping("/search")
 	public ResponseEntity<?> getAllBySerie (@RequestParam String serie){
-		List<Cromo> cromos =  cromoService.getBySerie(serie);
-		if(cromos.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con esa serie.");
+		try {
+			List<CromoDto> cromos =  cromoService.getBySerie(serie);
+			if(cromos.isEmpty()) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado ningún cromo con esa serie.");
+			}
+			return ResponseEntity.ok(cromos);
+		}catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del sistema");
 		}
-		return ResponseEntity.ok(cromos);
 	}
 	
 	
 	
-	public ResponseEntity<?> dataValidation(Cromo cromo){
+	public ResponseEntity<?> dataValidation(CromoDto cromo){
 
 		if(cromo.getNombre() == null  || cromo.getNombre().isBlank()) { //name cant be null or empty
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacio.");

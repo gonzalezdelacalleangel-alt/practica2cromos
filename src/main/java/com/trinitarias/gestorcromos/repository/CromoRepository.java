@@ -6,11 +6,12 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository; // provides CRUD methods (find, save, delete) automatically
 
-import com.trinitarias.gestorcromos.Cromo;  // imports the entity that this repository manages
+  // imports the entity that this repository manages
+import com.trinitarias.gestorcromos.entity.CromoEntity;
 
 @Repository
-public interface CromoRepository extends JpaRepository<Cromo, Long> {
-	List<Cromo> findAllBySerieIgnoreCase(String serie);
+public interface CromoRepository extends JpaRepository<CromoEntity, Long> {
+	List<CromoEntity> findAllBySerieIgnoreCase(String serie);
 		
 	
 }
